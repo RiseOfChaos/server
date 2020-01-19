@@ -1,0 +1,18 @@
+name: server
+description: A sample command-line application.
+# version: 1.0.0
+# homepage: https://www.example.com
+# author: Issac <email@example.com>
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+dependencies:
+  jaguar: ^2.4.1
+  jaguar_dev_proxy:
+  data:
+    path: ../data
+  tuple:
+
+dev_dependencies:
+  test:
