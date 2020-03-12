@@ -1,7 +1,7 @@
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
-Future<void> scheduleNext(CityStorage storage, String cityId) async {
+Future<void> scheduleNext(CityDb storage, String cityId) async {
   final now = DateTime.now();
 
   final city = await storage.fetchByID(cityId);
@@ -20,10 +20,10 @@ Future<void> scheduleNext(CityStorage storage, String cityId) async {
         recruitment.startedAt.add(Duration(seconds: recruitment.duration));
   }
 
-  await storage.updateRecruitmentQueue(city.recruitments, null, null);
+  await storage.updateRecruitmentQueue(city.id, city.recruitments, null, null);
 }
 
-Future<void> doRecruitment(CityStorage storage, String cityId) async {
+Future<void> doRecruitment(CityDb storage, String cityId) async {
   final now = DateTime.now();
 
   final city = await storage.fetchByID(cityId);
@@ -60,7 +60,7 @@ Future<void> doRecruitment(CityStorage storage, String cityId) async {
     }
 
     await storage.updateRecruitmentQueue(
-        city.recruitments, city.troopsHome, null);
+        city.id, city.recruitments, city.troopsHome, null);
   } else {
     // TODO: we should never be here. log!
   }

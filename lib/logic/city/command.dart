@@ -1,12 +1,12 @@
 import 'package:data/city/city.dart';
+import 'package:server/db/db.dart';
 import 'package:server/logic/combat/combat.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
 
 import 'command_helper.dart';
 
 Future<void> doCommand(
-    CityStorage cityStorage, PlayerStorage playerStorage, String cityId) async {
+    CityDb cityStorage, PlayerDb playerStorage, String cityId) async {
   final now = DateTime.now();
 
   final city = await cityStorage.fetchByID(cityId);
@@ -30,7 +30,8 @@ Future<void> doCommand(
       res = city.resources.add(command.loot, now);
     }
     city.troopsHome.add(command.troops);
-    await cityStorage.updateCommand(city.commands, city.troopsHome, res);
+    await cityStorage.updateCommand(
+        city.id, city.commands, city.troopsHome, res);
   } else if (command.state == CommandState.going ||
       command.state == CommandState.staying) {
     switch (command.type) {
@@ -53,8 +54,8 @@ Future<void> doCommand(
   // TODO
 }
 
-Future<void> _doAssault(DateTime now, CityStorage cityStorage,
-    PlayerStorage playerStorage, City city, Command command) async {
+Future<void> _doAssault(DateTime now, CityDb cityStorage,
+    PlayerDb playerStorage, City city, Command command) async {
   final toCity = await cityStorage.fetchByID(command.toId);
   if (toCity == null) {
     // TODO return command
@@ -79,17 +80,20 @@ Future<void> _doAssault(DateTime now, CityStorage cityStorage,
   command.troops = attacker.result.remaining;
   command.loot = attacker.result.loot;
 
-  await cityStorage.updateCommand(attacker.city.commands, null, null);
+  await cityStorage.updateCommand(
+      attacker.city.id, attacker.city.commands, null, null);
 
   for (final sup in supports) {
     if (sup.result.remaining.isZero) {
       toCity.onSupports.removeWhere((s) => s.id == sup.command.id);
 
       sup.city.commands.remove(sup.command);
-      await cityStorage.updateCommand(sup.city.commands, null, null);
+      await cityStorage.updateCommand(
+          sup.city.id, sup.city.commands, null, null);
     } else {
       sup.command.troops = sup.result.remaining;
-      await cityStorage.updateCommand(sup.city.commands, null, null);
+      await cityStorage.updateCommand(
+          sup.city.id, sup.city.commands, null, null);
     }
   }
 
@@ -97,20 +101,20 @@ Future<void> _doAssault(DateTime now, CityStorage cityStorage,
   city.troopsHome = defender.result.remaining;
   final res = city.resources.subtract(defender.result.loot, now);
   await cityStorage.updateIncomingAttack(
-      city.incomingAttacks, city.troopsHome, res);
+      city.id, city.incomingAttacks, city.troopsHome, res);
 }
 
 Future<void> _doSupport(
-    DateTime now, CityStorage storage, City city, Command command) async {
+    DateTime now, CityDb storage, City city, Command command) async {
   command.state = CommandState.staying;
   command.startedAt = now;
   command.finishesAt = null;
 
-  await storage.updateCommand(city.commands, null, null);
+  await storage.updateCommand(city.id, city.commands, null, null);
 }
 
-Future<void> _doSiege(DateTime now, CityStorage cityStorage,
-    PlayerStorage playerStorage, City city, Command command) async {
+Future<void> _doSiege(DateTime now, CityDb cityStorage, PlayerDb playerStorage,
+    City city, Command command) async {
   final toCity = await cityStorage.fetchByID(command.toId);
   if (toCity == null) {
     // TODO return command
@@ -135,17 +139,20 @@ Future<void> _doSiege(DateTime now, CityStorage cityStorage,
   command.troops = attacker.result.remaining;
   command.loot = attacker.result.loot;
 
-  await cityStorage.updateCommand(attacker.city.commands, null, null);
+  await cityStorage.updateCommand(
+      attacker.city.id, attacker.city.commands, null, null);
 
   for (final sup in supports) {
     if (sup.result.remaining.isZero) {
       toCity.onSupports.removeWhere((s) => s.id == sup.command.id);
 
       sup.city.commands.remove(sup.command);
-      await cityStorage.updateCommand(sup.city.commands, null, null);
+      await cityStorage.updateCommand(
+          sup.city.id, sup.city.commands, null, null);
     } else {
       sup.command.troops = sup.result.remaining;
-      await cityStorage.updateCommand(sup.city.commands, null, null);
+      await cityStorage.updateCommand(
+          sup.city.id, sup.city.commands, null, null);
     }
   }
 
@@ -153,10 +160,10 @@ Future<void> _doSiege(DateTime now, CityStorage cityStorage,
   city.troopsHome = defender.result.remaining;
   final res = city.resources.subtract(defender.result.loot, now);
   await cityStorage.updateIncomingAttack(
-      city.incomingAttacks, city.troopsHome, res);
+      city.id, city.incomingAttacks, city.troopsHome, res);
 }
 
 Future<void> _doLoot(
-    DateTime now, CityStorage storage, City city, Command command) async {
+    DateTime now, CityDb storage, City city, Command command) async {
   // TODO
 }

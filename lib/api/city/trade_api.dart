@@ -1,6 +1,6 @@
 import 'package:jaguar/jaguar.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
 Future<Response> sendResources(Context context) async {
   String playerId = context.getVariable<String>(id: "playerId");
@@ -11,8 +11,7 @@ Future<Response> sendResources(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -63,7 +62,7 @@ Future<Response> sendResources(Context context) async {
     finishesAt: finishesAt,
     carts: cartsNeeded,
     resources: req.resources,
-    returning: false,
+    isReturning: false,
   );
   city.trades.add(trade);
   final tradeIn = TradeIn(
@@ -76,8 +75,8 @@ Future<Response> sendResources(Context context) async {
   toCity.tradeIns.add(tradeIn);
 
   await storage.updateTrade(
-      city.trades, city.resources.clone.subtract(req.resources, now));
-  await storage.updateTradeIn(toCity.tradeIns, null);
+      city.id, city.trades, city.resources.clone.subtract(req.resources, now));
+  await storage.updateTradeIn(toCity.id, toCity.tradeIns, null);
 
   // TODO
 }
@@ -91,8 +90,7 @@ Future<Response> cancelTrade(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -108,7 +106,7 @@ Future<Response> cancelTrade(Context context) async {
 
   final trade = city.trades[index];
 
-  if (trade.returning) {
+  if (trade.isReturning) {
     return Response(CancelTradeErrors422.alreadyReturning, statusCode: 422);
   }
 
@@ -117,12 +115,12 @@ Future<Response> cancelTrade(Context context) async {
     toCity.tradeIns.removeWhere((t) => t.id == tradeId);
   }
 
-  trade.returning = true;
+  trade.isReturning = true;
   trade.finishesAt = now.add(now.difference(trade.startedAt));
   trade.startedAt = now;
 
-  await storage.updateTrade(city.trades, null);
-  await storage.updateTradeIn(toCity.tradeIns, null);
+  await storage.updateTrade(city.id, city.trades, null);
+  await storage.updateTradeIn(toCity.id, toCity.tradeIns, null);
 
   // TODO
 }
@@ -136,8 +134,7 @@ Future<Response> cancelTradeIn(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-  context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -159,8 +156,8 @@ Future<Response> cancelTradeIn(Context context) async {
     if (index != -1) {
       final trade = city.trades[index];
 
-      if (!trade.returning) {
-        trade.returning = true;
+      if (!trade.isReturning) {
+        trade.isReturning = true;
         trade.finishesAt = now.add(now.difference(trade.startedAt));
         trade.startedAt = now;
       } else {
@@ -171,8 +168,8 @@ Future<Response> cancelTradeIn(Context context) async {
     }
   }
 
-  await storage.updateTrade(fromCity.trades, null);
-  await storage.updateTradeIn(city.tradeIns, null);
+  await storage.updateTrade(fromCity.id, fromCity.trades, null);
+  await storage.updateTradeIn(city.id, city.tradeIns, null);
 
   // TODO
 }

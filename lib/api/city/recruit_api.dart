@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:data/city/city.dart';
 import 'package:jaguar/jaguar.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
 Future<Response> recruit(Context context) async {
   String playerId = context.getVariable<String>(id: "playerId");
@@ -15,8 +15,7 @@ Future<Response> recruit(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -67,8 +66,8 @@ Future<Response> recruit(Context context) async {
   }
   city.recruitments.add(recruitment);
 
-  await storage.updateRecruitmentQueue(
-      city.recruitments, null, city.resources.clone.subtract(cost, now));
+  await storage.updateRecruitmentQueue(city.id, city.recruitments, null,
+      city.resources.clone.subtract(cost, now));
 
   // TODO trigger ministers
 
@@ -86,8 +85,7 @@ Future<Response> discharge(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -103,7 +101,7 @@ Future<Response> discharge(Context context) async {
   city.troopsHome.subtract(troops);
 
   // TODO refund
-  await storage.updateTroops(city.troopsHome);
+  await storage.updateTroopsHome(city.id, city.troopsHome);
 
   // TODO trigger minister recruit
 

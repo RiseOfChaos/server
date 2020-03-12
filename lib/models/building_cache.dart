@@ -14,15 +14,6 @@ class BuildingCache {
 
   Map<String, Map<String, void>> buildingsByType = {};
 
-  void addBuilding(Plot plot) {
-    Map<String, void> forType = buildingsByType[plot.type.toString()];
-    if (forType == null) {
-      buildingsByType[plot.type.toString()] = forType = {};
-    }
-
-    forType[plot.pos.toString()] = null;
-  }
-
   int troopSpace = 0;
 
   int constructionSpeed = 100;
@@ -36,6 +27,15 @@ class BuildingCache {
   int rangeRecruitmentSpeed = 100;
 
   int siegeRecruitmentSpeed = 100;
+
+  void addBuilding(Plot plot) {
+    Map<String, void> forType = buildingsByType[plot.type.toString()];
+    if (forType == null) {
+      buildingsByType[plot.type.toString()] = forType = {};
+    }
+
+    forType[plot.pos.toString()] = null;
+  }
 
   void updateRates(Plot plot, City city, DateTime now) {
     Resources newRate;
@@ -159,7 +159,7 @@ class BuildingCache {
             if (intPos.isSame(boosterBuildingPos)) continue;
 
             Plot boosterBuilding =
-            city.plots[boosterBuildingPos.oneDForm.toString()];
+                city.plots[boosterBuildingPos.oneDForm.toString()];
             if (boosterBuilding == null) continue;
 
             switch (boosterBuilding.type) {
@@ -218,7 +218,7 @@ class BuildingCache {
             if (intPos.isSame(boosterBuildingPos)) continue;
 
             Plot boosterBuilding =
-            city.plots[boosterBuildingPos.oneDForm.toString()];
+                city.plots[boosterBuildingPos.oneDForm.toString()];
             if (boosterBuilding == null) continue;
 
             switch (boosterBuilding.type) {
@@ -277,7 +277,7 @@ class BuildingCache {
             if (intPos.isSame(boosterBuildingPos)) continue;
 
             Plot boosterBuilding =
-            city.plots[boosterBuildingPos.oneDForm.toString()];
+                city.plots[boosterBuildingPos.oneDForm.toString()];
             if (boosterBuilding == null) continue;
 
             switch (boosterBuilding.type) {
@@ -336,17 +336,19 @@ class BuildingCache {
             if (intPos.isSame(boosterBuildingPos)) continue;
 
             Plot boosterBuilding =
-            city.plots[boosterBuildingPos.oneDForm.toString()];
+                city.plots[boosterBuildingPos.oneDForm.toString()];
             if (boosterBuilding == null) continue;
 
             switch (boosterBuilding.type) {
               case CityNodeIds.refinery:
-                perc.adamantium += refinery.production2[boosterBuilding.level - 1];
-                perc.magnetite += refinery.production2[boosterBuilding.level - 1];
+                perc.adamantium +=
+                    refinery.production2[boosterBuilding.level - 1];
+                perc.magnetite +=
+                    refinery.production2[boosterBuilding.level - 1];
                 break;
               case CityNodeIds.enrichmentPlant:
                 perc.uranium +=
-                enrichmentPlant.production2[boosterBuilding.level - 1];
+                    enrichmentPlant.production2[boosterBuilding.level - 1];
                 break;
             }
           }
@@ -448,7 +450,7 @@ class BuildingCache {
             if (intPos.isSame(militaryBuildingPos)) continue;
 
             Plot militaryBuilding =
-            city.plots[militaryBuildingPos.oneDForm.toString()];
+                city.plots[militaryBuildingPos.oneDForm.toString()];
             if (militaryBuilding == null) continue;
 
             switch (militaryBuilding.type) {
@@ -501,7 +503,7 @@ class BuildingCache {
             if (intPos.isSame(militaryBuildingPos)) continue;
 
             Plot militaryBuilding =
-            city.plots[militaryBuildingPos.oneDForm.toString()];
+                city.plots[militaryBuildingPos.oneDForm.toString()];
             if (militaryBuilding == null) continue;
 
             switch (militaryBuilding.type) {
@@ -554,7 +556,7 @@ class BuildingCache {
             if (intPos.isSame(militaryBuildingPos)) continue;
 
             Plot militaryBuilding =
-            city.plots[militaryBuildingPos.oneDForm.toString()];
+                city.plots[militaryBuildingPos.oneDForm.toString()];
             if (militaryBuilding == null) continue;
 
             switch (militaryBuilding.type) {
@@ -607,7 +609,7 @@ class BuildingCache {
             if (intPos.isSame(militaryBuildingPos)) continue;
 
             Plot militaryBuilding =
-            city.plots[militaryBuildingPos.oneDForm.toString()];
+                city.plots[militaryBuildingPos.oneDForm.toString()];
             if (militaryBuilding == null) continue;
 
             switch (militaryBuilding.type) {
@@ -633,7 +635,7 @@ class BuildingCache {
 
     if (buildingsByType[CityNodeIds.commandCenter] != null) {
       final plot =
-      city.plots[buildingsByType[CityNodeIds.commandCenter].keys.first];
+          city.plots[buildingsByType[CityNodeIds.commandCenter].keys.first];
 
       if (plot == null) {
         // TODO this can't be. log!

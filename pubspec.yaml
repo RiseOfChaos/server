@@ -13,6 +13,8 @@ dependencies:
   data:
     path: ../data
   tuple:
+  libpg:
+    path: ../../../dart/libpg
 
 dev_dependencies:
   test:

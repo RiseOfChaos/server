@@ -1,7 +1,7 @@
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
-Future<void> doTrade(CityStorage storage, String cityId) async {
+Future<void> doTrade(CityDb storage, String cityId) async {
   final now = DateTime.now();
 
   final city = await storage.fetchByID(cityId);
@@ -15,18 +15,20 @@ Future<void> doTrade(CityStorage storage, String cityId) async {
     return;
   }
 
-  final trade = city.trades.firstWhere((t) => t.finishesAt != null && now.isAfter(t.finishesAt));
+  final trade = city.trades
+      .firstWhere((t) => t.finishesAt != null && now.isAfter(t.finishesAt));
 
-  if(trade.returning) {
+  if (trade.isReturning) {
     city.trades.remove(trade);
     TimedResources res;
-    if(!trade.resources.isZero) {
+    if (!trade.resources.isZero) {
       res = city.resources.add(trade.resources, now);
     }
-    await storage.updateTrade(city.trades, res);
+    await storage.updateTrade(city.id, city.trades, res);
   } else {
-    trade.returning = true;
-    Duration duration = now.difference(trade.startedAt);  // TODO compute from distance
+    trade.isReturning = true;
+    Duration duration =
+        now.difference(trade.startedAt); // TODO compute from distance
     trade.finishesAt = now.add(duration);
     trade.startedAt = now;
 
@@ -36,9 +38,9 @@ Future<void> doTrade(CityStorage storage, String cityId) async {
 
       TimedResources res = toCity.resources.add(trade.resources, now);
       trade.resources = Resources();
-      await storage.updateTradeIn(toCity.tradeIns, res);
+      await storage.updateTradeIn(toCity.id, toCity.tradeIns, res);
     }
 
-    await storage.updateTrade(city.trades, null);
+    await storage.updateTrade(city.id, city.trades, null);
   }
 }

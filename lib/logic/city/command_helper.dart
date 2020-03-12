@@ -2,10 +2,10 @@ import 'package:data/city/city.dart';
 import 'package:server/logic/combat/combat.dart';
 import 'package:server/models/city.dart';
 import 'package:server/models/player/player.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
-Future<List<Army>> getSupportArmy(DateTime now, City city,
-    CityStorage cityStorage, PlayerStorage playerStorage) async {
+Future<List<Army>> getSupportArmy(
+    DateTime now, City city, CityDb cityStorage, PlayerDb playerStorage) async {
   final ret = <Army>[];
 
   final cities = <String, City>{};
@@ -27,7 +27,7 @@ Future<List<Army>> getSupportArmy(DateTime now, City city,
 
     // Find command
     final cmd =
-    fromCity.commands.firstWhere((c) => c.id == sup.id, orElse: () => null);
+        fromCity.commands.firstWhere((c) => c.id == sup.id, orElse: () => null);
     if (cmd == null) continue;
 
     if (cmd.state != CommandState.staying) continue;
@@ -51,8 +51,8 @@ Future<List<Army>> getSupportArmy(DateTime now, City city,
   return ret;
 }
 
-Future<Army> getDefender(DateTime now, City toCity, CityStorage cityStorage,
-    PlayerStorage playerStorage) async {
+Future<Army> getDefender(DateTime now, City toCity, CityDb cityStorage,
+    PlayerDb playerStorage) async {
   // Fetch player
   Player player = await playerStorage.fetchByID(toCity.ownerId);
 

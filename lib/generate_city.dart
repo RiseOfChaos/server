@@ -14,7 +14,7 @@ class CityGenerator {
         final pos = Pos(x: xpos + rect.left, y: ypos + rect.top);
         final pos1d = pos.oneDForm;
 
-        if (plots.containsKey(pos1d)) return false;
+        if (plots.containsKey(pos1d.toString())) return false;
 
         if (C.ccPosMap.containsKey(pos1d)) return false;
 
@@ -31,8 +31,8 @@ class CityGenerator {
     final watch = Stopwatch();
     watch.start();
     while (true) {
-      final xpos = _rand.nextInt(C.numCols - 6 - shape.x) + 3;
-      final ypos = _rand.nextInt(C.numRows - 6 - shape.y) + 3;
+      final xpos = _rand.nextInt(C.numCols - 4 - shape.x) + 2;
+      final ypos = _rand.nextInt(C.numRows - 4 - shape.y) + 2;
 
       final rect = Rectangle<int>(xpos, ypos, shape.x, shape.y);
 
@@ -44,32 +44,40 @@ class CityGenerator {
     }
   }
 
-  int _placeBlock(
-      final int type, final Point<int> base, final Point<int> size) {
+  int _placeBlock(final int type, final Point<int> base, final Point<int> size,
+      int remaining) {
     final holes = List<bool>.generate(
-        size.x * size.y, (i) => _rand.nextDouble() < 0.80,
+        size.x * size.y, (i) => _rand.nextDouble() > 0.80,
         growable: false);
 
+    int count = 0;
     for (int x = 0; x < size.x; x++) {
       for (int y = 0; y < size.y; y++) {
-        final localPos = y * size.y + x;
-        if (holes.contains(localPos)) continue;
+        final localPos = y * size.x + x;
+        if (holes[localPos]) continue;
 
         final pos = Pos(x: base.x + x, y: base.y + y);
         plots[pos.oneDForm.toString()] =
             Plot(pos: pos.oneDForm, type: type, level: 0);
+
+        count++;
+        remaining--;
+        if (remaining == 0) return count;
       }
     }
+
+    return count;
   }
 
-  void fillBlocks(final int count, final int type) {
+  void fillBlocks(final int type, final int count) {
     int remaining = count;
 
     while (remaining > 0) {
       final shape = shapes[_rand.nextInt(shapes.length)];
       final pos = getRandomEmptyBlock(shape);
       if (pos == null) continue;
-      remaining -= _placeBlock(type, pos, shape);
+      remaining -= _placeBlock(type, pos, shape, remaining);
+      print("$type $shape $remaining");
     }
   }
 
@@ -78,9 +86,11 @@ class CityGenerator {
   static Map<String, Plot> generate(int forests, int mountains, int swamps) {
     final cityGenerator = CityGenerator();
 
-    cityGenerator.fillBlocks(citySwamp.id, forests);
+    cityGenerator.fillBlocks(cityForrest.id, forests);
     cityGenerator.fillBlocks(cityMountain.id, mountains);
     cityGenerator.fillBlocks(citySwamp.id, swamps);
+
+    return cityGenerator.plots;
   }
 
   static const shapes = [

@@ -4,7 +4,7 @@ import 'package:data/city/city.dart';
 import 'package:data/data.dart';
 import 'package:jaguar/jaguar.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
+import 'package:server/db/db.dart';
 
 Future<Response> constructBuilding(Context context) async {
   String playerId = context.getVariable<String>(id: "playerId");
@@ -16,8 +16,7 @@ Future<Response> constructBuilding(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -76,8 +75,8 @@ Future<Response> constructBuilding(Context context) async {
   city.constructions.add(construction);
 
   // Save to database
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources.clone.subtract(cost, now), null, null);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources.clone.subtract(cost, now), null, null);
 
   // TODO return model
 }
@@ -91,8 +90,7 @@ Future<Response> upgradeBuilding(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -142,8 +140,8 @@ Future<Response> upgradeBuilding(Context context) async {
   city.constructions.add(construction);
 
   // Save to database
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources.clone.subtract(cost, now), null, null);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources.clone.subtract(cost, now), null, null);
 
   // TODO trigger ministers
 
@@ -159,8 +157,7 @@ Future<Response> downgradeBuilding(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -209,7 +206,8 @@ Future<Response> downgradeBuilding(Context context) async {
   city.constructions.add(construction);
 
   // Save to database
-  await storage.updateConstructionQueue(city.constructions, null, null, null);
+  await storage.updateConstructionQueue(
+      city.id, city.constructions, null, null, null);
 
   // TODO return model
 }
@@ -223,8 +221,7 @@ Future<Response> demolishBuilding(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -272,7 +269,8 @@ Future<Response> demolishBuilding(Context context) async {
   city.constructions.add(construction);
 
   // Save to database
-  await storage.updateConstructionQueue(city.constructions, null, null, null);
+  await storage.updateConstructionQueue(
+      city.id, city.constructions, null, null, null);
 
   // TODO return model
 }
@@ -286,8 +284,7 @@ Future<Response> cancelConstruction(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -313,7 +310,8 @@ Future<Response> cancelConstruction(Context context) async {
   }
 
   // Save to database
-  await storage.updateConstructionQueue(city.constructions, refund, null, null);
+  await storage.updateConstructionQueue(
+      city.id, city.constructions, refund, null, null);
 
   // TODO return model
 }

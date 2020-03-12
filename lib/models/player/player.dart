@@ -1,5 +1,5 @@
 class Player {
   String id;
 
-  String name;
+  String username;
 }

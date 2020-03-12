@@ -1,7 +1,7 @@
+import 'package:server/db/db.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
 
-Future<void> scheduleNext(CityStorage storage, String cityId) async {
+Future<void> scheduleNext(CityDb storage, String cityId) async {
   final now = DateTime.now();
 
   final city = await storage.fetchByID(cityId);
@@ -20,10 +20,11 @@ Future<void> scheduleNext(CityStorage storage, String cityId) async {
         construction.startedAt.add(Duration(seconds: construction.duration));
   }
 
-  await storage.updateConstructionQueue(city.constructions, null, null, null);
+  await storage.updateConstructionQueue(
+      city.id, city.constructions, null, null, null);
 }
 
-Future<void> doConstruct(CityStorage storage, String cityId) async {
+Future<void> doConstruct(CityDb storage, String cityId) async {
   final now = DateTime.now();
 
   final city = await storage.fetchByID(cityId);
@@ -63,7 +64,7 @@ Future<void> doConstruct(CityStorage storage, String cityId) async {
     if (!success) {
       city.constructions.removeAt(0);
       await storage.updateConstructionQueue(
-          city.constructions, null, null, null);
+          city.id, city.constructions, null, null, null);
     }
   } else {
     // TODO we should never be here
@@ -72,8 +73,8 @@ Future<void> doConstruct(CityStorage storage, String cityId) async {
   await scheduleNext(storage, cityId);
 }
 
-Future<bool> _executeConstruct(CityStorage storage, City city,
-    Construction construction, DateTime now) async {
+Future<bool> _executeConstruct(
+    CityDb storage, City city, Construction construction, DateTime now) async {
   final buildingInfo = buildings[construction.buildingType];
 
   // Plot not empty?
@@ -108,16 +109,16 @@ Future<bool> _executeConstruct(CityStorage storage, City city,
 
   city.constructions.removeAt(0);
 
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources, city.buildingCache, city.plots);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources, city.buildingCache, city.plots);
 
   // TODO
 
   return true;
 }
 
-Future<bool> _executeUpgrade(CityStorage storage, City city,
-    Construction construction, DateTime now) async {
+Future<bool> _executeUpgrade(
+    CityDb storage, City city, Construction construction, DateTime now) async {
   final plot = city.plots[construction.pos];
   if (plot == null) {
     return false;
@@ -140,14 +141,14 @@ Future<bool> _executeUpgrade(CityStorage storage, City city,
 
   city.constructions.removeAt(0);
 
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources, city.buildingCache, city.plots);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources, city.buildingCache, city.plots);
 
   // TODO
 }
 
-Future<bool> _executeDowngrade(CityStorage storage, City city,
-    Construction construction, DateTime now) async {
+Future<bool> _executeDowngrade(
+    CityDb storage, City city, Construction construction, DateTime now) async {
   final plot = city.plots[construction.pos];
   if (plot == null) {
     return false;
@@ -175,14 +176,14 @@ Future<bool> _executeDowngrade(CityStorage storage, City city,
 
   city.constructions.removeAt(0);
 
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources, city.buildingCache, city.plots);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources, city.buildingCache, city.plots);
 
   // TODO
 }
 
-Future<bool> _executeDemolish(CityStorage storage, City city,
-    Construction construction, DateTime now) async {
+Future<bool> _executeDemolish(
+    CityDb storage, City city, Construction construction, DateTime now) async {
   if (construction.buildingType == CityNodeIds.commandCenter) {
     return false;
   }
@@ -203,8 +204,8 @@ Future<bool> _executeDemolish(CityStorage storage, City city,
 
   city.constructions.removeAt(0);
 
-  await storage.updateConstructionQueue(
-      city.constructions, city.resources, city.buildingCache, city.plots);
+  await storage.updateConstructionQueue(city.id, city.constructions,
+      city.resources, city.buildingCache, city.plots);
 
   // TODO
 }

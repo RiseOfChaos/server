@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:data/city/city.dart';
 import 'package:jaguar/jaguar.dart';
+import 'package:server/db/db.dart';
 import 'package:server/models/city.dart';
-import 'package:server/storage/storage.dart';
 
 Future<Response> assault(Context context) async {
   String playerId = context.getVariable<String>(id: "playerId");
@@ -14,8 +14,7 @@ Future<Response> assault(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -90,8 +89,9 @@ Future<Response> assault(Context context) async {
   );
   city.incomingAttacks.add(incomingAttack);
 
-  await storage.updateCommand(city.commands, city.troopsHome, null);
-  await storage.updateIncomingAttack(toCity.incomingAttacks, null, null);
+  await storage.updateCommand(city.id, city.commands, city.troopsHome, null);
+  await storage.updateIncomingAttack(
+      toCity.id, toCity.incomingAttacks, null, null);
 
   // TODO
 }
@@ -105,8 +105,7 @@ Future<Response> siege(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -181,8 +180,9 @@ Future<Response> siege(Context context) async {
   );
   city.incomingAttacks.add(incomingAttack);
 
-  await storage.updateCommand(city.commands, city.troopsHome, null);
-  await storage.updateIncomingAttack(toCity.incomingAttacks, null, null);
+  await storage.updateCommand(city.id, city.commands, city.troopsHome, null);
+  await storage.updateIncomingAttack(
+      toCity.id, toCity.incomingAttacks, null, null);
 
   // TODO
 }
@@ -196,8 +196,7 @@ Future<Response> raid(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -262,8 +261,9 @@ Future<Response> raid(Context context) async {
   );
   city.incomingAttacks.add(incomingAttack);
 
-  await storage.updateCommand(city.commands, city.troopsHome, null);
-  await storage.updateIncomingAttack(toCity.incomingAttacks, null, null);
+  await storage.updateCommand(city.id, city.commands, city.troopsHome, null);
+  await storage.updateIncomingAttack(
+      toCity.id, toCity.incomingAttacks, null, null);
 
   // TODO
 }
@@ -277,8 +277,7 @@ Future<Response> support(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -333,8 +332,8 @@ Future<Response> support(Context context) async {
   );
   city.onSupports.add(support);
 
-  await storage.updateCommand(city.commands, city.troopsHome, null);
-  await storage.updateSupport(toCity.onSupports, null);
+  await storage.updateCommand(city.id, city.commands, city.troopsHome, null);
+  await storage.updateSupport(toCity.id, toCity.onSupports, null);
 
   // TODO
 }
@@ -348,8 +347,7 @@ Future<dynamic> cancelCommand(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
 
@@ -388,7 +386,8 @@ Future<dynamic> cancelCommand(Context context) async {
     final attack = toCity.incomingAttacks.firstWhere((a) => a.id == cmd.id);
     if (attack != null) {
       toCity.incomingAttacks.remove(attack);
-      await storage.updateIncomingAttack(toCity.incomingAttacks, null, null);
+      await storage.updateIncomingAttack(
+          toCity.id, toCity.incomingAttacks, null, null);
     } else {
       // TODO log
     }
@@ -396,7 +395,7 @@ Future<dynamic> cancelCommand(Context context) async {
     // TODO log
   }
 
-  await storage.updateCommand(city.commands, null, null);
+  await storage.updateCommand(city.id, city.commands, null, null);
 
   // TODO
 }
@@ -410,8 +409,7 @@ Future<dynamic> cancelSupport(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
   if (city == null) {
@@ -443,7 +441,7 @@ Future<dynamic> cancelSupport(Context context) async {
     final attack = toCity.onSupports.firstWhere((a) => a.id == cmd.id);
     if (attack != null) {
       toCity.onSupports.remove(attack);
-      await storage.updateSupport(toCity.onSupports, null);
+      await storage.updateSupport(toCity.id, toCity.onSupports, null);
     } else {
       // TODO log
     }
@@ -451,7 +449,7 @@ Future<dynamic> cancelSupport(Context context) async {
     // TODO log
   }
 
-  await storage.updateCommand(city.commands, null, null);
+  await storage.updateCommand(city.id, city.commands, null, null);
 
   // TODO
 }
@@ -465,8 +463,7 @@ Future<dynamic> sendBackSupport(Context context) async {
 
   DateTime now = DateTime.now();
 
-  final CityStorage storage =
-      context.getVariable<CityStorage>(id: "cityStorage");
+  final CityDb storage = context.getVariable<CityDb>(id: "cityStorage");
 
   City city = await storage.fetchByID(id);
   if (city == null) {
@@ -496,7 +493,7 @@ Future<dynamic> sendBackSupport(Context context) async {
       sup.finishesAt = now.add(duration);
       sup.startedAt = now;
 
-      await storage.updateCommand(fromCity.commands, null, null);
+      await storage.updateCommand(fromCity.id, fromCity.commands, null, null);
     } else {
       // TODO log
     }
@@ -504,7 +501,7 @@ Future<dynamic> sendBackSupport(Context context) async {
     // TODO log
   }
 
-  await storage.updateSupport(city.onSupports, null);
+  await storage.updateSupport(city.id, city.onSupports, null);
 
   // TODO
 }
