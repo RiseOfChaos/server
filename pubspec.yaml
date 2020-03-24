@@ -14,7 +14,7 @@ dependencies:
     path: ../data
   tuple:
   libpg:
-    path: ../../../dart/libpg
+    path: ../../dart/libpg
 
 dev_dependencies:
   test:

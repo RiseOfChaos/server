@@ -77,7 +77,7 @@ class CityGenerator {
       final pos = getRandomEmptyBlock(shape);
       if (pos == null) continue;
       remaining -= _placeBlock(type, pos, shape, remaining);
-      print("$type $shape $remaining");
+      // DEBUG: print("$type $shape $remaining");
     }
   }
 
