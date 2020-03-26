@@ -1,5 +1,5 @@
 import 'package:server/models/city.dart';
-import 'package:server/models/player/player.dart';
+import 'package:server/models/player/user.dart';
 
 abstract class CityDb {
   Future<City> create(City city);

@@ -1,5 +1,5 @@
 import 'package:server/models/models.dart';
-import 'package:server/models/player/player.dart';
+import 'package:server/models/player/user.dart';
 
 class Army {
   Troops troops;

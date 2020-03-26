@@ -1,7 +1,7 @@
 import 'package:data/city/city.dart';
 import 'package:server/logic/combat/combat.dart';
 import 'package:server/models/city.dart';
-import 'package:server/models/player/player.dart';
+import 'package:server/models/player/user.dart';
 import 'package:server/db/db.dart';
 
 Future<List<Army>> getSupportArmy(
