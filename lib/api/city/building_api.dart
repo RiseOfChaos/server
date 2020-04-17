@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:data/city/city.dart';
 import 'package:data/data.dart';
-import 'package:jaguar/jaguar.dart';
+mport 'package:jaguar/jaguar.dart';
 import 'package:server/models/city.dart';
 import 'package:server/db/db.dart';
 
